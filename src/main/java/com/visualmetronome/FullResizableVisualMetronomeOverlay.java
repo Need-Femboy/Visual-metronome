@@ -3,9 +3,8 @@ package com.visualmetronome;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayPosition;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.Font;
+
+import java.awt.*;
 import javax.inject.Inject;
 import net.runelite.api.Point;
 import net.runelite.client.ui.overlay.OverlayUtil;
@@ -34,37 +33,64 @@ public class FullResizableVisualMetronomeOverlay extends Overlay
     public Dimension render(Graphics2D graphics)
     {
         Dimension preferredSize = getPreferredSize();
-
         if (preferredSize == null)
         {
             // if this happens, reset to default - should be rare, but eg. alt+rightclick will cause this
             preferredSize = plugin.DEFAULT_SIZE;
             setPreferredSize(preferredSize);
         }
-
+    
+        int boxWidth = preferredSize.width;
+        int boxHeight = preferredSize.height;
+        int titlePadding = Math.min(boxWidth, boxHeight) / 2 - 4; // Scales tick number position
+    
         if (config.enableMetronome())
         {
+            int centerX = 0;
+            
+            if (config.enableCycle2())
+            {
+                graphics.setColor(plugin.currentColor2);
+                graphics.fillRect(0, 0, boxWidth, boxHeight);
+                centerX = boxWidth;
+            }
+            
             graphics.setColor(plugin.currentColor);
-            graphics.fillRect(0, 0, preferredSize.width, preferredSize.height);
-            TITLE_PADDING = (Math.min(preferredSize.width, preferredSize.height) / 2 - 4); // scales tick number position with box size
-
+            graphics.fillRect(centerX, 0, boxWidth, boxHeight);
+            
+            if (config.enableCycle3())
+            {
+                graphics.setColor(plugin.currentColor3);
+                graphics.fillRect(centerX + boxWidth, 0, boxWidth, boxHeight);
+            }
+        
             if (config.showTick())
             {
                 if (config.disableFontScaling())
                 {
                     graphics.setColor(config.NumberColor());
-                    if (config.tickCount() == 1)
+                    graphics.drawString(config.tickCount() == 1 ? String.valueOf(plugin.currentColorIndex) : String.valueOf(plugin.tickCounter), centerX + titlePadding, boxHeight - titlePadding);
+                
+                    if (config.enableCycle2())
                     {
-                        graphics.drawString(String.valueOf(plugin.currentColorIndex), TITLE_PADDING, preferredSize.height - TITLE_PADDING);
+                        graphics.setColor(config.cycle2Color());
+                        graphics.drawString(String.valueOf(plugin.tickCounter2), titlePadding, boxHeight - titlePadding);
                     }
-                    else
+                
+                    if (config.enableCycle3())
                     {
-                        graphics.drawString(String.valueOf(plugin.tickCounter), TITLE_PADDING, preferredSize.height - TITLE_PADDING);
+                        graphics.setColor(config.cycle3Color());
+                        graphics.drawString(String.valueOf(plugin.tickCounter3), centerX + boxWidth + titlePadding, boxHeight - titlePadding);
                     }
-
                 }
                 else
                 {
+                    graphics.setFont(
+                            config.fontType() == FontTypes.REGULAR
+                                    ? new Font(FontManager.getRunescapeFont().getName(), Font.PLAIN, Math.min(boxWidth, boxHeight))
+                                    : new Font(config.fontType().toString(), Font.PLAIN, Math.min(boxWidth, boxHeight))
+                    );
+    
                     if (config.fontType() == FontTypes.REGULAR)
                     {
                         graphics.setFont(new Font(FontManager.getRunescapeFont().getName(), Font.PLAIN, Math.min(preferredSize.width, preferredSize.height))); //scales font size based on the size of the metronome
@@ -73,20 +99,36 @@ public class FullResizableVisualMetronomeOverlay extends Overlay
                     {
                         graphics.setFont(new Font(config.fontType().toString(), Font.PLAIN, Math.min(preferredSize.width, Math.min(preferredSize.width, preferredSize.height))));
                     }
-
-                    final Point tickCounterPoint = new Point(preferredSize.width / 3, preferredSize.height);
-                    if (config.tickCount() == 1)
+                
+                    OverlayUtil.renderTextLocation(
+                            graphics,
+                            new Point(centerX + (boxWidth / 3), boxHeight),
+                            config.tickCount() == 1 ? String.valueOf(plugin.currentColorIndex) : String.valueOf(plugin.tickCounter),
+                            config.NumberColor()
+                    );
+                
+                    if (config.enableCycle2())
                     {
-                        OverlayUtil.renderTextLocation(graphics, tickCounterPoint, String.valueOf(plugin.currentColorIndex), config.NumberColor());
+                        OverlayUtil.renderTextLocation(
+                                graphics,
+                                new Point(boxWidth / 3, boxHeight),String.valueOf(plugin.tickCounter2),
+                                config.cycle2Color()
+                        );
                     }
-                    else
+                    
+                    if (config.enableCycle3())
                     {
-                        OverlayUtil.renderTextLocation(graphics, tickCounterPoint, String.valueOf(plugin.tickCounter), config.NumberColor());
+                        OverlayUtil.renderTextLocation(
+                                graphics,
+                                new Point(centerX + boxWidth + (boxWidth / 3), boxHeight), String.valueOf(plugin.tickCounter3),
+                                config.cycle3Color()
+                        );
                     }
                 }
             }
         }
 
+        
         return preferredSize;
     }
 }

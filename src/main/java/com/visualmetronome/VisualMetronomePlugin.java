@@ -44,10 +44,14 @@ public class VisualMetronomePlugin extends Plugin implements KeyListener
     private KeyManager keyManager;
 
     protected int currentColorIndex = 0;
+    protected int currentColorIndex2 = 0;
+    protected int currentColorIndex3 = 0;
     protected int tickCounter = 0;
     protected int tickCounter2 = 0;
     protected int tickCounter3 = 0;
     protected Color currentColor = Color.WHITE;
+    protected Color currentColor2 = Color.WHITE;
+    protected Color currentColor3 = Color.WHITE;
     protected int resetValue = 0;
     protected Dimension DEFAULT_SIZE = new Dimension(25, 25);
 
@@ -100,13 +104,89 @@ public class VisualMetronomePlugin extends Plugin implements KeyListener
                     currentColor = config.getTick10Color();
             }
         }
+        
         tickCounter++;
-        if (tickCounter2 % config.tickCount2() == 0){
-            tickCounter2 = 0;
+        if (tickCounter2 % config.tickCount() == 0)
+        {
+            if (currentColorIndex2 == config.tickCount2())
+            {
+                tickCounter2 = 0;
+                currentColorIndex2 = 0;
+            }
+            switch (++currentColorIndex2)
+            {
+                case 1:
+                    currentColor2 = config.getTickColor();
+                    break;
+                case 2:
+                    currentColor2 = config.getTockColor();
+                    break;
+                case 3:
+                    currentColor2 = config.getTick3Color();
+                    break;
+                case 4:
+                    currentColor2 = config.getTick4Color();
+                    break;
+                case 5:
+                    currentColor2 = config.getTick5Color();
+                    break;
+                case 6:
+                    currentColor2 = config.getTick6Color();
+                    break;
+                case 7:
+                    currentColor2 = config.getTick7Color();
+                    break;
+                case 8:
+                    currentColor2 = config.getTick8Color();
+                    break;
+                case 9:
+                    currentColor2 = config.getTick9Color();
+                    break;
+                case 10:
+                    currentColor2 = config.getTick10Color();
+                    break;
+            }
         }
         tickCounter2++;
-        if (tickCounter3 % config.tickCount3() == 0){
-            tickCounter3 = 0;
+        if (tickCounter3 % config.tickCount() == 0){
+            if (currentColorIndex3 == config.tickCount3())
+            {
+                tickCounter3 = 0;
+                currentColorIndex3 = 0;
+            }
+            switch (++currentColorIndex3)
+            {
+                case 1:
+                    currentColor3 = config.getTickColor();
+                    break;
+                case 2:
+                    currentColor3 = config.getTockColor();
+                    break;
+                case 3:
+                    currentColor3 = config.getTick3Color();
+                    break;
+                case 4:
+                    currentColor3 = config.getTick4Color();
+                    break;
+                case 5:
+                    currentColor3 = config.getTick5Color();
+                    break;
+                case 6:
+                    currentColor3 = config.getTick6Color();
+                    break;
+                case 7:
+                    currentColor3 = config.getTick7Color();
+                    break;
+                case 8:
+                    currentColor3 = config.getTick8Color();
+                    break;
+                case 9:
+                    currentColor3 = config.getTick9Color();
+                    break;
+                case 10:
+                    currentColor3 = config.getTick10Color();
+                    break;
+            }
         }
         tickCounter3++;
     }
@@ -121,6 +201,16 @@ public class VisualMetronomePlugin extends Plugin implements KeyListener
         if (currentColorIndex > config.colorCycle())
         {
             currentColorIndex = 0;
+        }
+    
+        if (currentColorIndex2 > config.colorCycle())
+        {
+            currentColorIndex2 = 0;
+        }
+    
+        if (currentColorIndex3 > config.colorCycle())
+        {
+            currentColorIndex3 = 0;
         }
 
         if (tickCounter > config.tickCount())
@@ -160,6 +250,8 @@ public class VisualMetronomePlugin extends Plugin implements KeyListener
         tickCounter2 = 0;
         tickCounter3 = 0;
         currentColorIndex = 0;
+        currentColorIndex2 = 0;
+        currentColorIndex3 = 0;
         currentColor = config.getTickColor();
         keyManager.unregisterKeyListener(this);
     }
@@ -182,12 +274,16 @@ public class VisualMetronomePlugin extends Plugin implements KeyListener
                 resetValue = (config.tickResetStartTick() >= config.tickCount()) ? 0 : config.tickResetStartTick();
                 tickCounter = resetValue;
                 currentColorIndex = 0;
+                currentColorIndex2 = 0;
+                currentColorIndex3 = 0;
             }
             else
             {
                 resetValue = (config.tickResetStartTick() >= config.colorCycle()) ? 0 : config.tickResetStartTick();
                 tickCounter = resetValue;
                 currentColorIndex = resetValue;
+                currentColorIndex2 = resetValue;
+                currentColorIndex3 = resetValue;
             }
             tickCounter2 = (config.tickResetStartTick() >= config.tickCount2()) ? 0 : config.tickResetStartTick();
             tickCounter3 = (config.tickResetStartTick() >= config.tickCount3()) ? 0 : config.tickResetStartTick();
